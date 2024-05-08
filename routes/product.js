@@ -24,7 +24,7 @@ router.get("/", function (req, res) {
     .table("products as p")
     .join([
       {
-        table: "catagories as c",
+        table: "categories as c",
         on: "c.id = p.cat_id",
       },
     ])
@@ -32,7 +32,7 @@ router.get("/", function (req, res) {
       "c.title as category",
       "p.title as name",
       "p.price",
-      "p.qty",
+      "p.quantity",
       "p.image",
       "p.id"
     ])
@@ -62,7 +62,7 @@ router.get("/:prodId", (req,res)=>{
     .table("products as p")
     .join([
       {
-        table: "catagories as c",
+        table: "categories as c",
         on: "c.id = p.cat_id",
       },
     ])
@@ -70,7 +70,7 @@ router.get("/:prodId", (req,res)=>{
       "c.title as category",
       "p.title as name",
       "p.price",
-      "p.qty",
+      "p.quantity",
       "p.image",
       "p.images",
       "p.id"
@@ -115,7 +115,7 @@ router.get('/category/:cateName',(req,res) => {
     .table("products as p")
     .join([
       {
-        table: "catagories as c",
+        table: "categories as c",
         on: `c.id = p.cat_id  WHERE c.title LIKE '%${cat_title}%'`,
       },
     ])
@@ -123,7 +123,7 @@ router.get('/category/:cateName',(req,res) => {
       "c.title as category",
       "p.title as name",
       "p.price",
-      "p.qty",
+      "p.quantity",
       "p.image",
       "p.id"
     ])

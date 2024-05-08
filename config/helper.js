@@ -6,7 +6,7 @@ host: 'localhost',
 post: 3306,
 user: 'root',
 passwd: '',
-db: 'ecommerce_shop'
+db: 'mega_shop'
 });
 
 let db = conn.emit(false,'' );

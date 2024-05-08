@@ -2,11 +2,10 @@ var express = require("express");
 var router = express.Router();
 const { database } = require("../config/helper");
 
-
-/* GET  ALL ORDERS. */
-router.get("/", function (req, res) {
+/* GET ALL ORDERS. */
+router.get('/', function (req, res) {
   database
-    .table("order_details as od")
+    .table("orders_details as od")
     .join([
       {
         table: "orders as o",
@@ -40,11 +39,11 @@ router.get("/", function (req, res) {
 });
 
 /* GET SINGLE ORDERS. */
-router.get("/:id", (req, res) => {
+router.get('/:id', (req, res) => {
   const orderId = req.params.id;
 
   database
-    .table("order_details as od")
+    .table("orders_details as od")
     .join([
       {
         table: "orders as o",
@@ -79,85 +78,71 @@ router.get("/:id", (req, res) => {
 });
 
 /* PLACE A NEW ORDER */
-router.post('/new', (req, res) => {
-  let {userId, products} = req.body;
-  console.log(userId, products);
+router.post('/new', async (req, res) => {
+  let { userId, products } = req.body;
 
-  // if (userId != null && userId > 0 && !isNaN(userId)) {
-  //   database
-  //     .table("orders")
-  //     .insert({
-  //       user_id: userId,
-  //     })
-  //     .then(newOrderId => {
-        
-  //       if (newOrderId > 0) {
-  //         products.forEach(async (p) => {
-  //           let data = await database
-  //             .table("products")
-  //             .filter({ id: p.id })
-  //             .withFields(["qty"])
-  //             .get();
+  if (userId != null && userId > 0 && !isNaN(userId)) {
+    try {
 
-  //           let inCart = p.inCart;
+      const newOrderId = await database.table("orders").insert({ user_id: userId });
+ 
+      if (newOrderId.insertId > 0) {
+ 
+        console.log(newOrderId.insertId)
+        for (let p of products) {
+           try {
+             let data = await database.table("products").filter({ id: p.id }).withFields(["quantity"]).get();
+           let inCart = p.incart;
 
-  //           // Deduct the number of pieces ordered from the quantity column in database
-  //           if (data.qty > 0) {
-  //             data.qty = data.qty - inCart;
+            if (data.quantity > 0) {
+              data.quantity = data.quantity - inCart;
+              if (data.quantity < 0) {
+                data.quantity = 0;
+              }
+            } else {
+              data.quantity = 0;
+            }
 
-  //             if (data.qty < 0) {
-  //               data.qty = 0;
-  //             }
-  //           } else {
-  //             data.qty = 0;
-  //           }
+            await database.table("orders_details").insert({
+              order_id: newOrderId.insertId,
+              product_id: p.id,
+              quantity: inCart,
+            });
 
-  //           // INSERT ORDER DETAILS W.R.T THE NEWLY GENERATED ORDER ID
-  //           database
-  //             .table("order_details")
-  //             .insert({
-  //               order_id: newOrderId,
-  //               product_id: p.id,
-  //               qty: inCart,
-  //             })
-  //             .then((newId) => {
-  //               database
-  //                 .table("products")
-  //                 .filter({ id: p.id })
-  //                 .update({ 
-  //                   qty: data.qty,
-  //                 })
-  //                 .then(successNum => {})
-  //                 .catch(err => console.log(err));
-  //                }).catch(err => console.log(err));
-              
-  //               });
-              
-  //       } else {
-  //         res.json({message: 'new order failed while adding order details',success: false})
-  //       }
-  //       res.json({
-  //         message: `order successfully placed with order id ${newOrderId}`,
-  //         success: true,
-  //         order_id: newOrderId,
-  //         products: products
-  //       });
+            await database.table("products").filter({ id: p.id }).update({ quantity: data.quantity });
 
-  //     }).catch(err => console.log(err))
-  // } else {
-  //   res.json({message: 'New order failed', success: false});
-  // }
+          } catch (error) {
+            console.error("Error processing product:", error);
+            // Handle errors
+          }
+        }
+
+        res.json({
+          message: `Order successfully placed with order id ${newOrderId.insertId}`,
+          success: true,
+          order_id: newOrderId,
+          products: products
+        });
+      } else {
+        res.json({ message: 'New order failed while adding order details', success: false });
+      }
+    } catch (err) {
 
 
+
+      console.error("Error creating new order:", err);
+      res.json({ message: 'New order failed', success: false });
+    }
+  } else {
+    res.json({ message: 'Invalid user ID', success: false });
+  }
 });
 
 /* FAKE PAYMENT GATEWAY CALL */
 router.post('/payment', (req,res) => {
-    setTimeout( () => {
-      res.status(200).json({success: true});
+    setTimeout(() => {
+      res.status(200).json({ success: true });
     }, 3000);
-})
-
-
+});
 
 module.exports = router;

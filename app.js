@@ -4,7 +4,11 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
+const bodyParser = require('body-parser');
+
 var app = express();
+
+app.use(bodyParser.json());
 
 // Import Routes
 var ProductRouter = require("./routes/product");
@@ -22,7 +26,13 @@ app.use(
       "Content-Type, Authorization, Origin, X-Requested-With, Accept",
   })
 );
-
+app.post('/api/orders', (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    return res.status(400).json({ error: 'userId is required' });
+  }
+  // Handle the request...
+});
 // view engine setup
 // app.set("views", path.join(__dirname, "views"));
 // app.set("view engine", "jade");
