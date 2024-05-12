@@ -33,6 +33,7 @@ router.get("/", function (req, res) {
       "p.title as name",
       "p.price",
       "p.quantity",
+      "p.description",
       "p.image",
       "p.id"
     ])
@@ -53,40 +54,65 @@ router.get("/", function (req, res) {
 });
 
 /* GET SINGLE PRODUCTS */
-router.get("/:prodId", (req,res)=>{
+// router.get("/:prodId", (req,res)=>{
 
- let productId = req.params.prodId;
- console.log(productId);
+//  let productId = req.params.prodId;
+//  console.log(productId);
 
-  database
-    .table("products as p")
-    .join([
-      {
-        table: "categories as c",
-        on: "c.id = p.cat_id",
-      },
-    ])
-    .withFields([
-      "c.title as category",
-      "p.title as name",
-      "p.price",
-      "p.quantity",
-      "p.image",
-      "p.images",
-      "p.id"
-    ])  
-    .filter({'p.id' : productId})
-    .sort({id: .1})
-    .get()
-    .then(prod => {
-      if(prod) {
-        res.status(200).json({prod});
-      }else {
-        res.json({message: `no product found with product id ${productId}`});
-      }
-    }).catch(err => console.log(err));
+//   database
+//     .table("products as p")
+//     .join([
+//       {
+//         table: "categories as c",
+//         on: "c.id = p.cat_id",
+//       },
+//     ])
+//     .withFields([
+//       "c.title as category",
+//       "p.title as name",
+//       "p.price",
+//       "p.quantity",
+//       "p.description",
+//       "p.image",
+//       "p.images",
+//       "p.id"
+//     ])  
+//     .filter({'p.id' : productId})
+//     .sort({id: .1})
+//     .get()
+//     .then(prod => {
+//       if(prod) {
+//         res.status(200).json({prod});
+//       }else {
+//         res.json({message: `no product found with product id ${productId}`});
+//       }
+//     }).catch(err => console.log(err));
 
 
+// });
+router.get('/:prodId', (req, res) => {
+  let productId = req.params.prodId;
+  console.log(productId);
+
+  database.table('products as p').join([{
+    table: 'categories as c',
+    on: 'c.id = p.cat_id'
+  }]).withFields(['c.title as category',
+    'p.title as name',
+    'p.price',
+    'p.quantity',
+    'p.image',
+    'p.images',
+    'p.description',
+    'p.id']).filter({'p.id': productId}).get().then(prod => {
+    if(prod)
+    {
+      res.status(200).json(prod);
+    }
+    else {
+      res.json({message: `No Product Found with id: ${productId}!`});
+    }
+  }).catch(err => console.log(err));
 });
 
 /* GET ALL PRODUCTS FROM ONE PARTICULAR CATEGORY */
@@ -124,6 +150,7 @@ router.get('/category/:cateName',(req,res) => {
       "p.title as name",
       "p.price",
       "p.quantity",
+      "p.description",
       "p.image",
       "p.id"
     ])

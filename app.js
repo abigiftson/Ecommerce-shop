@@ -13,11 +13,7 @@ app.use(bodyParser.json());
 // Import Routes
 var ProductRouter = require("./routes/product");
 var ordersRouter = require("./routes/orders");
-
-// Use Routes
-app.use('/api/products', ProductRouter);
-app.use('/api/orders', ordersRouter);
-
+app.use(cors());
 app.use(
   cors({
     origin: "*",
@@ -26,6 +22,12 @@ app.use(
       "Content-Type, Authorization, Origin, X-Requested-With, Accept",
   })
 );
+
+// Use Routes
+app.use('/api/products', ProductRouter);
+app.use('/api/orders', ordersRouter);
+
+
 app.post('/api/orders', (req, res) => {
   const { userId } = req.body;
   if (!userId) {
@@ -47,7 +49,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createError(404));
+  // next(createError(404));
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");    
+  next();
 });
 
 // // error handler
