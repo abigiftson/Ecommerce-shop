@@ -1,3 +1,4 @@
+require('dotenv').config();
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
@@ -11,8 +12,11 @@ var app = express();
 app.use(bodyParser.json());
 
 // Import Routes
-var ProductRouter = require("./routes/product");
-var ordersRouter = require("./routes/orders");
+const ProductRouter = require("./routes/product");
+const userRouter = require("./routes/users");
+const ordersRouter = require("./routes/orders");
+const authRouter = require("./routes/auth");
+
 app.use(cors());
 app.use(
   cors({
@@ -25,7 +29,9 @@ app.use(
 
 // Use Routes
 app.use('/api/products', ProductRouter);
+app.use('/api/users', userRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/auth', authRouter);
 
 
 app.post('/api/orders', (req, res) => {
